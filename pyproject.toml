@@ -1,0 +1,11 @@
+[project]
+name = "kokoni-tools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "customtkinter>=5.2.2",
+    "darkdetect>=0.8.0",
+    "packaging>=26.0",
+]
