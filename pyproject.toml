@@ -1,5 +1,5 @@
 [project]
-name = "kokoni-tools"
+name = "kokoni-ec1-controller"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"

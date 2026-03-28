@@ -15,7 +15,7 @@ class KokoniControlPanel(ctk.CTk):
         self.title("KOKONI Controller")
         self.geometry("700x700")
 
-        # 接続情報（デフォルト値）
+        # 接続情報
         self.ip = "192.168.11.25:5555"
         self.port = "/dev/ttyS1"
 
@@ -23,11 +23,10 @@ class KokoniControlPanel(ctk.CTk):
         self.selected_file = None
         self.tty_queue = queue.Queue()
         
-        # デュアルストリーム用のプロセス変数
         self.read_process = None
         self.write_process = None
 
-        # --- UI ---
+        # UI
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -35,7 +34,7 @@ class KokoniControlPanel(ctk.CTk):
         self.sidebar.grid(row=0, column=0, sticky="nsew")
         ctk.CTkLabel(self.sidebar, text="KOKONI EC1", font=("Arial", 20, "bold")).pack(pady=20)
 
-        # IPアドレス設定欄
+        # IPアドレス欄
         ctk.CTkLabel(self.sidebar, text="IP Address", font=("Arial", 12, "bold")).pack(pady=(0, 2))
         self.ip_var = ctk.StringVar(value=self.ip)
         self.ip_entry = ctk.CTkEntry(self.sidebar, textvariable=self.ip_var, width=140)
@@ -44,7 +43,7 @@ class KokoniControlPanel(ctk.CTk):
         self.conn_btn = ctk.CTkButton(self.sidebar, text="CONNECT", command=self.connect)
         self.conn_btn.pack(pady=10, padx=10)
 
-        # --- 追加: 純正アプリ制御 ---
+        # 純正アプリ制御
         ctk.CTkLabel(self.sidebar, text="Native App", font=("Arial", 12, "bold")).pack(pady=(15, 0))
         self.enable_app_btn = ctk.CTkButton(
             self.sidebar, text="Enable App", fg_color="#27AE60",
@@ -98,15 +97,15 @@ class KokoniControlPanel(ctk.CTk):
         self.progress_text = ctk.CTkLabel(self.main_frame, text="進捗: 0%")
         self.progress_text.pack(pady=5)
 
-        # ターミナル出力用のテキストボックス
+        # ターミナル出力
         self.log_box = ctk.CTkTextbox(self.main_frame, height=150, font=("Consolas", 12), fg_color="#1E1E1E", text_color="#00FF00")
         self.log_box.pack(fill="both", expand=True, padx=20, pady=(10, 20))
         self.log_box.configure(state="disabled")
 
-        # クリックでフォーカスを外すバインド
+        # クリックでフォーカスを外す
         self.bind_all("<Button-1>", self.remove_focus)
 
-    # -------------------- 入力フォーカス制御 --------------------
+    # 入力フォーカス
     def remove_focus(self, event):
         try:
             widget_class = event.widget.winfo_class()
@@ -115,7 +114,7 @@ class KokoniControlPanel(ctk.CTk):
         except Exception:
             pass
 
-    # -------------------- ログ出力処理 --------------------
+    # ログ出力
     def log_message(self, message):
         self.after(0, self._append_log, message)
 
@@ -130,7 +129,7 @@ class KokoniControlPanel(ctk.CTk):
         self.log_box.see("end")
         self.log_box.configure(state="disabled")
 
-    # -------------------- 純正アプリ手動制御 (エラーチェック付き) --------------------
+    # 純正アプリ切り替え
     def enable_native_app(self):
         ip = self.ip_var.get().strip()
         if not ip:
@@ -167,7 +166,7 @@ class KokoniControlPanel(ctk.CTk):
         else:
             self.log_message("Native printer app is DISABLED.")
 
-    # -------------------- 接続 --------------------
+    # 接続
     def connect(self):
         self.ip = self.ip_var.get().strip()
         if not self.ip:
@@ -217,7 +216,7 @@ class KokoniControlPanel(ctk.CTk):
             self.status_label.configure(text="Status: Connect Error")
             self.conn_btn.configure(text="RETRY", fg_color="#C0392B")
 
-    # -------------------- ファイル選択 --------------------
+    # ファイル選択 
     def select_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("G-code files", "*.gcode")])
         if file_path:
@@ -226,7 +225,7 @@ class KokoniControlPanel(ctk.CTk):
             self.print_btn.configure(state="normal")
             self.log_message(f"Selected file: {self.selected_file}")
 
-    # -------------------- tty 監視 --------------------
+    # tty
     def read_tty_loop(self):
         if self.read_process:
             for line in self.read_process.stdout:
@@ -235,7 +234,7 @@ class KokoniControlPanel(ctk.CTk):
                     self.tty_queue.put(line)
                     self.log_message(f"[RECV] {line}")
 
-    # -------------------- G-code送信 --------------------
+    # G-code送信
     def send_gcode(self, gcode_lines):
         if not self.write_process:
             self.log_message("Error: Not connected to printer.")
@@ -277,11 +276,11 @@ class KokoniControlPanel(ctk.CTk):
             if line.startswith("M109"):
                 self.after(0, lambda: self.status_label.configure(text="Status: Ready"))
 
-    # -------------------- 印刷制御 --------------------
+    # 印刷
     def stop_print(self):
         self.is_printing = False
         
-        # UIロック解除（別スレッドから呼ばれる可能性があるため after 経由）
+        # UIロック解除
         self.after(0, lambda: self.enable_app_btn.configure(state="normal"))
         self.after(0, lambda: self.disable_app_btn.configure(state="normal"))
         
@@ -330,7 +329,7 @@ class KokoniControlPanel(ctk.CTk):
                 
             self.is_printing = True
             
-            # 印刷開始時にUIロック
+            # UIロック
             self.print_btn.configure(state="disabled")
             self.enable_app_btn.configure(state="disabled")
             self.disable_app_btn.configure(state="disabled")
@@ -353,13 +352,13 @@ class KokoniControlPanel(ctk.CTk):
                 
                 if i % 10 == 0 or i == total - 1:
                     val = (i+1)/total
-                    # プログレスバーの更新をメインスレッドに委譲
+                    # プログレスバーの更新をメインスレッドに
                     self.after(0, lambda v=val: self.progress_bar.set(v))
                     self.after(0, lambda v=val, idx=i: self.progress_text.configure(text=f"進捗: {int(v*100)}% ({idx+1}/{total})"))
 
         self.is_printing = False
         
-        # 印刷完了時にUIロック解除とステータス更新をメインスレッドに委譲
+        # UIロック解除とステータス更新をメインスレッドに
         def _finish_ui():
             self.print_btn.configure(state="normal")
             self.enable_app_btn.configure(state="normal")

@@ -25,7 +25,7 @@ wheels = [
 ]
 
 [[package]]
-name = "kokoni-tools"
+name = "kokoni-ec1-controller"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
