@@ -56,7 +56,6 @@ class KokoniControlPanel(ctk.CTk):
             command=self.disable_native_app
         )
         self.disable_app_btn.pack(pady=5, padx=10)
-        # ------------------------------
 
         ctk.CTkLabel(self.sidebar, text="Manual", font=("Arial", 12, "bold")).pack(pady=(20,0))
         self.home_btn = ctk.CTkButton(
